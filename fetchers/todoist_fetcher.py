@@ -35,12 +35,20 @@ class TodoistFetcher:
         """Get active tasks, optionally filtered by project"""
         try:
             if project_id:
-                tasks_paginator = self.api.get_tasks(project_id=project_id)
+                result = self.api.get_tasks(project_id=project_id)
             else:
-                tasks_paginator = self.api.get_tasks()
+                result = self.api.get_tasks()
 
-            # Convert paginator to list
-            tasks = list(tasks_paginator)
+            # Convert paginator to list and flatten if needed
+            tasks_raw = list(result)
+
+            # Flatten if we got nested lists
+            tasks = []
+            for item in tasks_raw:
+                if isinstance(item, list):
+                    tasks.extend(item)
+                else:
+                    tasks.append(item)
 
             return [
                 {
@@ -54,5 +62,7 @@ class TodoistFetcher:
                 for task in tasks
             ]
         except Exception as e:
+            import traceback
             st.error(f"Todoist API error: {e}")
+            st.error(f"Traceback: {traceback.format_exc()}")
             return []

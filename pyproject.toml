@@ -8,3 +8,9 @@ dependencies = [
     "streamlit>=1.32.0",
     "todoist-api-python>=3.1.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-mock>=3.15.1",
+]
