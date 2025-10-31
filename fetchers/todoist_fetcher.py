@@ -35,18 +35,21 @@ class TodoistFetcher:
         """Get active tasks, optionally filtered by project"""
         try:
             if project_id:
-                tasks = self.api.get_tasks(project_id=project_id)
+                tasks_paginator = self.api.get_tasks(project_id=project_id)
             else:
-                tasks = self.api.get_tasks()
+                tasks_paginator = self.api.get_tasks()
+
+            # Convert paginator to list
+            tasks = list(tasks_paginator)
 
             return [
                 {
                     "id": task.id,
                     "content": task.content,
-                    "description": task.description,
-                    "is_completed": task.is_completed,
-                    "priority": task.priority,
-                    "project_id": task.project_id
+                    "description": getattr(task, 'description', ''),
+                    "is_completed": getattr(task, 'is_completed', False),
+                    "priority": getattr(task, 'priority', 1),
+                    "project_id": getattr(task, 'project_id', '')
                 }
                 for task in tasks
             ]
