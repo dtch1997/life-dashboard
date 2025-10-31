@@ -73,12 +73,13 @@ def main():
     col1, col2 = st.columns(2)
 
     with col1:
-        # Wins panel - fetch from Todoist
+        # Today's Wins panel - tasks completed today with priority 1 (p1)
         todoist = get_todoist_fetcher()
 
         if todoist:
-            tasks = todoist.get_active_tasks()
-            wins = [task["content"] for task in tasks[:5]] if tasks else []
+            # Priority 4 = p1 in Todoist (highest priority)
+            tasks = todoist.get_completed_today(priority=4)
+            wins = [task["content"] for task in tasks] if tasks else []
         else:
             # Fallback to mock data if no API token
             wins = [
@@ -90,7 +91,7 @@ def main():
             ]
 
         if not wins:
-            wins = ["No tasks found - add your Todoist API token to secrets"]
+            wins = ["No p1 tasks completed today yet - keep going!"]
 
         wins_html = "\n".join([f"<div style='padding: 8px 0; border-bottom: 1px solid rgba(102, 126, 234, 0.1);'>✓ {win}</div>" for win in wins])
 
@@ -108,7 +109,7 @@ def main():
                     margin-bottom: 20px;
                     font-weight: 400;
                     font-size: 1.3em;
-                '>🏆 Weekly Wins</h3>
+                '>🏆 Today's Wins</h3>
                 <div style='color: #fafafa; font-size: 0.95em;'>
                     {wins_html}
                 </div>

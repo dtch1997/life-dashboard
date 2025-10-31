@@ -9,26 +9,46 @@ class TodoistFetcher:
         self.api = TodoistAPI(api_token)
 
     @st.cache_data(ttl=300)
-    def get_completed_tasks(_self, days: int = 7) -> List[Dict[str, Any]]:
-        """Fetch completed tasks from the last N days"""
+    def get_completed_today(_self, priority: int = None) -> List[Dict[str, Any]]:
+        """Fetch tasks completed today, optionally filtered by priority"""
         try:
-            # Get all tasks
-            tasks = _self.api.get_tasks()
+            # Get completed tasks by completion date
+            today = datetime.now().date()
+            result = _self.api.get_completed_tasks_by_completion_date(
+                completed_after=today.isoformat(),
+                limit=100
+            )
 
-            # Filter completed tasks
-            # Note: Todoist API doesn't directly provide completed tasks
-            # We'll need to use the sync API or activity log
-            # For now, return active tasks as placeholder
-            return [
-                {
-                    "content": task.content,
-                    "completed_at": None,
-                    "project_id": task.project_id
-                }
-                for task in tasks[:5]  # Limit to 5 for demo
-            ]
+            # Handle paginator and flatten
+            tasks_raw = list(result)
+            tasks = []
+            for item in tasks_raw:
+                if isinstance(item, list):
+                    tasks.extend(item)
+                else:
+                    tasks.append(item)
+
+            # Filter by priority if specified (priority 4 = p1 in Todoist)
+            completed_tasks = []
+            for task in tasks:
+                task_priority = getattr(task, 'priority', 1)
+
+                # Check priority if specified
+                if priority is not None and task_priority != priority:
+                    continue
+
+                completed_tasks.append({
+                    "content": getattr(task, 'content', ''),
+                    "completed_at": getattr(task, 'completed_at', None),
+                    "priority": task_priority,
+                    "project_id": getattr(task, 'project_id', '')
+                })
+
+            return completed_tasks
         except Exception as e:
+            import traceback
             st.error(f"Todoist API error: {e}")
+            st.error(f"Traceback: {traceback.format_exc()}")
             return []
 
     def get_active_tasks(self, project_id: str = None) -> List[Dict[str, Any]]:
