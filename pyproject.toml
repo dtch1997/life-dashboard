@@ -6,4 +6,5 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "streamlit>=1.32.0",
+    "todoist-api-python>=3.1.0",
 ]

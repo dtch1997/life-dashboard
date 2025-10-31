@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import datetime
+from fetchers.todoist_fetcher import TodoistFetcher
 
 # Page config
 st.set_page_config(
@@ -8,6 +9,15 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Initialize Todoist fetcher
+@st.cache_resource
+def get_todoist_fetcher():
+    """Initialize Todoist API client with token from secrets"""
+    api_token = st.secrets.get("todoist_api_token", None)
+    if api_token:
+        return TodoistFetcher(api_token)
+    return None
 
 def main():
     # Sidebar greeting
@@ -63,14 +73,24 @@ def main():
     col1, col2 = st.columns(2)
 
     with col1:
-        # Wins panel
-        wins = [
-            "Deployed new dashboard feature",
-            "Completed morning workout routine",
-            "Finished quarterly planning doc",
-            "Fixed critical bug in production",
-            "Read 2 chapters of current book"
-        ]
+        # Wins panel - fetch from Todoist
+        todoist = get_todoist_fetcher()
+
+        if todoist:
+            tasks = todoist.get_active_tasks()
+            wins = [task["content"] for task in tasks[:5]] if tasks else []
+        else:
+            # Fallback to mock data if no API token
+            wins = [
+                "Deployed new dashboard feature",
+                "Completed morning workout routine",
+                "Finished quarterly planning doc",
+                "Fixed critical bug in production",
+                "Read 2 chapters of current book"
+            ]
+
+        if not wins:
+            wins = ["No tasks found - add your Todoist API token to secrets"]
 
         wins_html = "\n".join([f"<div style='padding: 8px 0; border-bottom: 1px solid rgba(102, 126, 234, 0.1);'>✓ {win}</div>" for win in wins])
 
