@@ -12,10 +12,13 @@ class TodoistFetcher:
     def get_completed_today(_self, priority: int = None) -> List[Dict[str, Any]]:
         """Fetch tasks completed today, optionally filtered by priority"""
         try:
-            # Get completed tasks by completion date
-            today = datetime.now().date()
+            # Get completed tasks by completion date (requires since and until)
+            today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            today_end = datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)
+
             result = _self.api.get_completed_tasks_by_completion_date(
-                completed_after=today.isoformat(),
+                since=today_start,
+                until=today_end,
                 limit=100
             )
 
