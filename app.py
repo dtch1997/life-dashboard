@@ -1,5 +1,4 @@
 import streamlit as st
-from datetime import datetime
 from typing import Dict
 from fetchers.todoist_fetcher import TodoistFetcher
 from panels import (
@@ -7,7 +6,8 @@ from panels import (
     RadarPanel,
     GreetingPanel,
 )
-from storage.crud import store_object, get_objects
+from interfaces import StorageInterface
+from storage.repository import SQLAlchemyStorageRepository
 from storage.models import RadarPanelData
 
 # Page config
@@ -17,6 +17,13 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Initialize storage
+@st.cache_resource
+def get_storage() -> StorageInterface:
+    """Initialize storage repository."""
+    return SQLAlchemyStorageRepository()
+
 
 # Initialize Todoist fetcher
 @st.cache_resource
@@ -39,14 +46,17 @@ def get_default_ratings() -> Dict[str, int]:
     }
 
 
-def load_radar_data() -> Dict[str, int]:
+def load_radar_data(storage: StorageInterface) -> Dict[str, int]:
     """Load latest radar data from database.
+
+    Args:
+        storage: Storage interface for retrieving data
 
     Returns:
         Dictionary of dimension ratings, or defaults if no data exists
     """
     try:
-        snapshots = get_objects("radar_snapshot", limit=1)
+        snapshots = storage.get_objects("radar_snapshot", limit=1)
         if snapshots:
             data = RadarPanelData(**snapshots[0])
             return data.ratings
@@ -57,6 +67,9 @@ def load_radar_data() -> Dict[str, int]:
 
 
 def main():
+    # Initialize dependencies
+    storage = get_storage()
+
     # Sidebar greeting
     with st.sidebar:
         GreetingPanel().render()
@@ -66,7 +79,7 @@ def main():
 
     # Initialize radar ratings in session state if not present
     if 'radar_ratings' not in st.session_state:
-        st.session_state.radar_ratings = load_radar_data()
+        st.session_state.radar_ratings = load_radar_data(storage)
 
     # 2-column layout: Today's Wins + Life Radar
     col1, col2 = st.columns(2)
