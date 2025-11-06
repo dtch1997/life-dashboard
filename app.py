@@ -61,65 +61,6 @@ def main():
     with st.sidebar:
         GreetingPanel().render()
 
-        # Manage Life Radar data
-        with st.expander("📊 Manage Life Radar"):
-            st.markdown("Update, save, and export your life radar data.")
-
-            # Load current ratings
-            if 'radar_ratings' not in st.session_state:
-                st.session_state.radar_ratings = load_radar_data()
-
-            # Sliders to update ratings
-            st.markdown("#### Update Ratings (1-10)")
-            for dimension in st.session_state.radar_ratings.keys():
-                st.session_state.radar_ratings[dimension] = st.slider(
-                    dimension,
-                    min_value=1,
-                    max_value=10,
-                    value=st.session_state.radar_ratings[dimension],
-                    key=f"slider_{dimension}"
-                )
-
-            col1, col2 = st.columns(2)
-
-            with col1:
-                # Save to database
-                if st.button("💾 Save to Database"):
-                    try:
-                        panel = RadarPanel(ratings=st.session_state.radar_ratings)
-                        data = panel.export_data()
-                        store_object("radar_snapshot", data.model_dump())
-                        st.success("✅ Saved to database!")
-                    except Exception as e:
-                        st.error(f"❌ Error saving: {e}")
-
-            with col2:
-                # Export to JSON
-                try:
-                    panel = RadarPanel(ratings=st.session_state.radar_ratings)
-                    json_data = panel.export_data().model_dump_json(indent=2)
-                    st.download_button(
-                        label="⬇️ Export JSON",
-                        data=json_data,
-                        file_name=f"life_radar_{datetime.now().strftime('%Y-%m-%d')}.json",
-                        mime="application/json"
-                    )
-                except Exception as e:
-                    st.error(f"❌ Error exporting: {e}")
-
-            # Import from JSON
-            st.markdown("#### Import from JSON")
-            uploaded_file = st.file_uploader("Upload radar data", type=['json'], key="radar_upload")
-            if uploaded_file is not None:
-                try:
-                    json_content = uploaded_file.read().decode('utf-8')
-                    imported_data = RadarPanelData.model_validate_json(json_content)
-                    st.session_state.radar_ratings = imported_data.ratings
-                    st.success("✅ Data imported! Don't forget to save to database.")
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"❌ Error importing: {e}")
-
     # Main content area
     st.write("")
 
