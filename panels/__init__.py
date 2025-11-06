@@ -9,6 +9,7 @@ from panels.metrics_panel import MetricsPanel
 from panels.focus_panel import FocusPanel
 from panels.weather_panel import WeatherPanel
 from panels.radar_panel import RadarPanel
+from panels.greeting_panel import GreetingPanel
 
 __all__ = [
     "Panel",
@@ -18,4 +19,5 @@ __all__ = [
     "FocusPanel",
     "WeatherPanel",
     "RadarPanel",
+    "GreetingPanel",
 ]
