@@ -1,4 +1,5 @@
 import streamlit as st
+from datetime import datetime
 from typing import Dict, List
 from fetchers.todoist_fetcher import TodoistFetcher
 from panels import (
@@ -76,6 +77,25 @@ def load_wheel_of_life_data(storage: StorageInterface) -> Dict[str, int]:
     return get_default_ratings()
 
 
+def get_default_habits() -> List[HabitData]:
+    """Get default habit data for demonstration.
+
+    Returns:
+        List of HabitData with sample habits
+    """
+    return [
+        HabitData(
+            name="Post research update on Twitter",
+            completions=[
+                datetime(2025, 11, 4, 10, 0, 0),
+                datetime(2025, 11, 6, 14, 0, 0),
+            ],
+            target_frequency="weekly",
+            emoji="🐦"
+        ),
+    ]
+
+
 def load_habits(storage: StorageInterface) -> List[HabitData]:
     """Load habits from database.
 
@@ -83,15 +103,17 @@ def load_habits(storage: StorageInterface) -> List[HabitData]:
         storage: Storage interface for retrieving data
 
     Returns:
-        List of HabitData objects
+        List of HabitData objects, or defaults if none exist
     """
     try:
         habit_records = storage.get_objects("habit", limit=10)
-        habits = [HabitData(**record) for record in habit_records]
-        return habits
+        if habit_records:
+            habits = [HabitData(**record) for record in habit_records]
+            return habits
     except Exception:
-        # If there's any error loading data, return empty list
-        return []
+        # If there's any error loading data, fall back to defaults
+        pass
+    return get_default_habits()
 
 
 def main():
