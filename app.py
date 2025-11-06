@@ -73,10 +73,15 @@ def main():
     # Main content area
     st.write("")
 
-    # 2-column layout: Life Radar + Today's Wins
+    # 2-column layout: Today's Wins + Life Radar
     col1, col2 = st.columns(2)
 
     with col1:
+        # Today's Wins panel
+        todoist = get_todoist_fetcher()
+        WinsPanel(todoist_fetcher=todoist).render()
+
+    with col2:
         # Life Radar panel
         radar_ratings = {
             "Health/Fitness": 7,
@@ -86,11 +91,6 @@ def main():
             "Work/Career": 8,
         }
         RadarPanel(ratings=radar_ratings).render()
-
-    with col2:
-        # Today's Wins panel
-        todoist = get_todoist_fetcher()
-        WinsPanel(todoist_fetcher=todoist).render()
 
 if __name__ == "__main__":
     main()
