@@ -6,6 +6,7 @@ import streamlit as st
 import plotly.graph_objects as go
 from typing import Dict
 from panels.base_panel import Panel
+from storage.models import RadarPanelData
 
 
 class RadarPanel(Panel):
@@ -19,6 +20,22 @@ class RadarPanel(Panel):
         """
         self.ratings = ratings
         self.title = title
+
+    def export_data(self) -> RadarPanelData:
+        """Export current ratings as typed data model.
+
+        Returns:
+            RadarPanelData with current ratings and metadata
+        """
+        return RadarPanelData(ratings=self.ratings)
+
+    def import_data(self, data: RadarPanelData) -> None:
+        """Import ratings from data model.
+
+        Args:
+            data: RadarPanelData containing validated ratings
+        """
+        self.ratings = data.ratings
 
     def _create_radar_chart(self) -> go.Figure:
         """Create an interactive radar/spider chart from dimension ratings"""
