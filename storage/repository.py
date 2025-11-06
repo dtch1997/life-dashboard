@@ -1,13 +1,15 @@
 """Concrete implementation of StorageInterface using SQLAlchemy."""
 
 import json
+from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Generator, List, Optional
 
 from sqlalchemy import Engine
+from sqlalchemy.orm import Session, sessionmaker
 
 from interfaces import StorageInterface
-from storage.database import get_session
+from storage.database import get_engine, init_db
 from storage.models import StoredObject
 
 
@@ -20,7 +22,22 @@ class SQLAlchemyStorageRepository(StorageInterface):
 
     def __init__(self, engine: Optional[Engine] = None):
         """Initialize repository with optional engine."""
-        self.engine = engine
+        self.engine = engine or get_engine()
+        init_db(self.engine)
+
+    @contextmanager
+    def _session(self) -> Generator[Session, None, None]:
+        """Create a database session using the repository's engine."""
+        SessionLocal = sessionmaker(bind=self.engine)
+        session = SessionLocal()
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
     def store_object(self, object_type: str, data: Dict[str, Any]) -> int:
         """Store an object as JSON.
@@ -32,7 +49,7 @@ class SQLAlchemyStorageRepository(StorageInterface):
         Returns:
             ID of the created object
         """
-        with get_session() as session:
+        with self._session() as session:
             obj = StoredObject(
                 object_type=object_type,
                 data=json.dumps(data),
@@ -59,7 +76,7 @@ class SQLAlchemyStorageRepository(StorageInterface):
         Returns:
             List of deserialized objects
         """
-        with get_session() as session:
+        with self._session() as session:
             query = session.query(StoredObject).filter_by(object_type=object_type)
             query = query.order_by(StoredObject.created_at.desc())
 
@@ -80,7 +97,7 @@ class SQLAlchemyStorageRepository(StorageInterface):
         Returns:
             Deserialized object data, or None if not found
         """
-        with get_session() as session:
+        with self._session() as session:
             obj = session.query(StoredObject).filter_by(id=object_id).first()
             return json.loads(obj.data) if obj else None
 
@@ -94,7 +111,7 @@ class SQLAlchemyStorageRepository(StorageInterface):
         Returns:
             True if object was updated, False if not found
         """
-        with get_session() as session:
+        with self._session() as session:
             obj = session.query(StoredObject).filter_by(id=object_id).first()
             if obj:
                 obj.data = json.dumps(data)
@@ -110,7 +127,7 @@ class SQLAlchemyStorageRepository(StorageInterface):
         Returns:
             True if object was deleted, False if not found
         """
-        with get_session() as session:
+        with self._session() as session:
             obj = session.query(StoredObject).filter_by(id=object_id).first()
             if obj:
                 session.delete(obj)
@@ -126,7 +143,7 @@ class SQLAlchemyStorageRepository(StorageInterface):
         Returns:
             Number of objects of the given type
         """
-        with get_session() as session:
+        with self._session() as session:
             return session.query(StoredObject).filter_by(object_type=object_type).count()
 
     def delete_objects_by_type(self, object_type: str) -> int:
@@ -138,6 +155,6 @@ class SQLAlchemyStorageRepository(StorageInterface):
         Returns:
             Number of objects deleted
         """
-        with get_session() as session:
+        with self._session() as session:
             count = session.query(StoredObject).filter_by(object_type=object_type).delete()
             return count
