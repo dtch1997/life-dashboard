@@ -7,7 +7,7 @@ from panels import (
     GreetingPanel,
 )
 from interfaces import StorageInterface
-from storage.repository import SQLAlchemyStorageRepository
+from storage.sqlalchemy import SQLAlchemyStorageRepository
 from storage.models import RadarPanelData
 
 # Page config

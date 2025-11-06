@@ -1,16 +1,52 @@
-"""Concrete implementation of StorageInterface using SQLAlchemy."""
+"""SQLAlchemy storage implementation."""
 
 import json
+import os
 from contextlib import contextmanager
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, Generator, List, Optional
 
-from sqlalchemy import Engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from interfaces import StorageInterface
-from storage.database import get_engine, init_db
-from storage.models import StoredObject
+from storage.models import Base, StoredObject
+
+
+def get_engine() -> Engine:
+    """Get SQLAlchemy engine based on environment configuration.
+
+    Returns:
+        Engine configured for either SQLite (local dev) or PostgreSQL (production)
+
+    Environment variables:
+        DB_TYPE: "sqlite" (default) or "postgres"
+        DATABASE_URL: PostgreSQL connection string (required if DB_TYPE=postgres)
+    """
+    db_type = os.getenv("DB_TYPE", "sqlite")
+
+    if db_type == "sqlite":
+        # Create database directory if it doesn't exist
+        db_path = Path.home() / ".life-dashboard" / "data.db"
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        return create_engine(f"sqlite:///{db_path}")
+    elif db_type == "postgres":
+        db_url = os.getenv("DATABASE_URL")
+        if not db_url:
+            raise ValueError("DATABASE_URL environment variable required for postgres")
+        return create_engine(db_url)
+    else:
+        raise ValueError(f"Unsupported DB_TYPE: {db_type}. Use 'sqlite' or 'postgres'")
+
+
+def init_db(engine: Engine) -> None:
+    """Initialize database by creating all tables.
+
+    Args:
+        engine: SQLAlchemy engine to use for table creation
+    """
+    Base.metadata.create_all(engine)
 
 
 class SQLAlchemyStorageRepository(StorageInterface):
