@@ -8,7 +8,7 @@ from panels import (
 )
 from interfaces import StorageInterface
 from storage.sqlalchemy import SQLAlchemyStorageRepository
-from storage.models import RadarPanelData
+from panels.radar_panel import RadarPanelData
 
 # Page config
 st.set_page_config(

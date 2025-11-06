@@ -3,7 +3,7 @@
 import pytest
 from datetime import datetime
 from pydantic import ValidationError
-from storage.models import RadarPanelData
+from panels.radar_panel import RadarPanelData
 
 
 def test_valid_ratings():

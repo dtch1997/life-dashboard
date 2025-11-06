@@ -4,9 +4,35 @@ Life Radar panel - displays life dimensions as radar chart
 
 import streamlit as st
 import plotly.graph_objects as go
+from datetime import datetime
 from typing import Dict
 from panels.base_panel import Panel
-from storage.models import RadarPanelData
+from pydantic import BaseModel, Field, field_validator
+
+
+class RadarPanelData(BaseModel):
+    """Type-safe data model for Life Radar ratings.
+
+    Attributes:
+        ratings: Dictionary mapping dimension names to ratings (1-10)
+        timestamp: When this snapshot was created
+        version: Data format version for future migrations
+    """
+
+    ratings: Dict[str, int] = Field(..., description="Dimension ratings (1-10)")
+    timestamp: datetime = Field(default_factory=datetime.now)
+    version: str = Field(default="1.0")
+
+    @field_validator('ratings')
+    @classmethod
+    def validate_ratings(cls, v: Dict[str, int]) -> Dict[str, int]:
+        """Ensure all ratings are in valid range (1-10)."""
+        for dimension, rating in v.items():
+            if not isinstance(rating, int):
+                raise ValueError(f"Rating for '{dimension}' must be an integer, got {type(rating)}")
+            if not 1 <= rating <= 10:
+                raise ValueError(f"Rating for '{dimension}' must be 1-10, got {rating}")
+        return v
 
 
 class RadarPanel(Panel):
