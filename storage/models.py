@@ -12,7 +12,7 @@ class StoredObject(Base):
 
     Attributes:
         id: Primary key
-        object_type: Type identifier (e.g., "radar_snapshot", "habit", "win")
+        object_type: Type identifier (e.g., "wheel_of_life_snapshot", "habit", "win")
         data: JSON string containing the object data
         created_at: Timestamp when object was created
     """

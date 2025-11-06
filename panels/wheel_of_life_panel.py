@@ -1,5 +1,5 @@
 """
-Life Radar panel - displays life dimensions as radar chart
+Wheel of Life panel - displays life dimensions as radar chart
 """
 
 import streamlit as st
@@ -10,8 +10,8 @@ from panels.base_panel import Panel
 from pydantic import BaseModel, Field, field_validator
 
 
-class RadarPanelData(BaseModel):
-    """Type-safe data model for Life Radar ratings.
+class WheelOfLifeData(BaseModel):
+    """Type-safe data model for Wheel of Life ratings.
 
     Attributes:
         ratings: Dictionary mapping dimension names to ratings (0-100)
@@ -35,10 +35,10 @@ class RadarPanelData(BaseModel):
         return v
 
 
-class RadarPanel(Panel):
-    """Panel displaying life radar chart with dimension ratings"""
+class WheelOfLifePanel(Panel):
+    """Panel displaying Wheel of Life chart with dimension ratings"""
 
-    def __init__(self, ratings: Dict[str, int], title: str = "Life Radar"):
+    def __init__(self, ratings: Dict[str, int], title: str = "Wheel of Life"):
         """
         Args:
             ratings: Dictionary mapping dimension names to ratings (0-100)
@@ -47,19 +47,19 @@ class RadarPanel(Panel):
         self.ratings = ratings
         self.title = title
 
-    def export_data(self) -> RadarPanelData:
+    def export_data(self) -> WheelOfLifeData:
         """Export current ratings as typed data model.
 
         Returns:
-            RadarPanelData with current ratings and metadata
+            WheelOfLifeData with current ratings and metadata
         """
-        return RadarPanelData(ratings=self.ratings)
+        return WheelOfLifeData(ratings=self.ratings)
 
-    def import_data(self, data: RadarPanelData) -> None:
+    def import_data(self, data: WheelOfLifeData) -> None:
         """Import ratings from data model.
 
         Args:
-            data: RadarPanelData containing validated ratings
+            data: WheelOfLifeData containing validated ratings
         """
         self.ratings = data.ratings
 

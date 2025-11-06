@@ -1,14 +1,14 @@
-"""Tests for RadarPanelData Pydantic model."""
+"""Tests for WheelOfLifeData Pydantic model."""
 
 import pytest
 from datetime import datetime
 from pydantic import ValidationError
-from panels.radar_panel import RadarPanelData
+from panels.wheel_of_life_panel import WheelOfLifeData
 
 
 def test_valid_ratings():
     """Test that valid ratings are accepted."""
-    data = RadarPanelData(
+    data = WheelOfLifeData(
         ratings={
             "Health": 5,
             "Finances": 8,
@@ -23,7 +23,7 @@ def test_valid_ratings():
 def test_invalid_rating_too_low():
     """Test that ratings below 0 are rejected."""
     with pytest.raises(ValidationError) as exc_info:
-        RadarPanelData(
+        WheelOfLifeData(
             ratings={
                 "Health": -1,
                 "Finances": 50,
@@ -35,7 +35,7 @@ def test_invalid_rating_too_low():
 def test_invalid_rating_too_high():
     """Test that ratings above 100 are rejected."""
     with pytest.raises(ValidationError) as exc_info:
-        RadarPanelData(
+        WheelOfLifeData(
             ratings={
                 "Health": 101,
                 "Finances": 50,
@@ -47,7 +47,7 @@ def test_invalid_rating_too_high():
 def test_invalid_rating_not_int():
     """Test that non-numeric ratings are rejected."""
     with pytest.raises(ValidationError) as exc_info:
-        RadarPanelData(
+        WheelOfLifeData(
             ratings={  # type: ignore[arg-type]
                 "Health": "invalid",
                 "Finances": 8,
@@ -59,7 +59,7 @@ def test_invalid_rating_not_int():
 
 def test_export_to_json():
     """Test that data can be exported to JSON."""
-    data = RadarPanelData(
+    data = WheelOfLifeData(
         ratings={
             "Health": 7,
             "Finances": 8,
@@ -74,7 +74,7 @@ def test_export_to_json():
 def test_import_from_json():
     """Test that data can be imported from JSON."""
     json_str = '{"ratings": {"Health": 6, "Finances": 9}, "timestamp": "2025-01-01T12:00:00", "version": "1.0"}'
-    data = RadarPanelData.model_validate_json(json_str)
+    data = WheelOfLifeData.model_validate_json(json_str)
     assert data.ratings == {"Health": 6, "Finances": 9}
     assert data.version == "1.0"
 
@@ -86,13 +86,13 @@ def test_import_from_dict():
         "timestamp": "2025-01-01T12:00:00",
         "version": "1.0"
     }
-    data = RadarPanelData(**data_dict)  # type: ignore[arg-type]
+    data = WheelOfLifeData(**data_dict)  # type: ignore[arg-type]
     assert data.ratings == {"Health": 7, "Social": 8}
 
 
 def test_boundary_values():
     """Test that boundary values (0 and 100) are accepted."""
-    data = RadarPanelData(
+    data = WheelOfLifeData(
         ratings={
             "Health": 0,
             "Finances": 100,
@@ -104,14 +104,14 @@ def test_boundary_values():
 
 def test_empty_ratings_dict():
     """Test that empty ratings dictionary is accepted."""
-    data = RadarPanelData(ratings={})
+    data = WheelOfLifeData(ratings={})
     assert data.ratings == {}
 
 
 def test_custom_timestamp():
     """Test that custom timestamp can be provided."""
     custom_time = datetime(2025, 1, 1, 12, 0, 0)
-    data = RadarPanelData(
+    data = WheelOfLifeData(
         ratings={"Health": 7},
         timestamp=custom_time
     )

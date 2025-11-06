@@ -8,7 +8,7 @@ from panels.github_panel import GitHubPanel
 from panels.metrics_panel import MetricsPanel
 from panels.focus_panel import FocusPanel
 from panels.weather_panel import WeatherPanel
-from panels.radar_panel import RadarPanel
+from panels.wheel_of_life_panel import WheelOfLifePanel
 from panels.greeting_panel import GreetingPanel
 from panels.habits_panel import HabitsPanel
 
@@ -19,7 +19,7 @@ __all__ = [
     "MetricsPanel",
     "FocusPanel",
     "WeatherPanel",
-    "RadarPanel",
+    "WheelOfLifePanel",
     "GreetingPanel",
     "HabitsPanel",
 ]

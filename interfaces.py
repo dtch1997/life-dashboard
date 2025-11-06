@@ -12,7 +12,7 @@ class StorageInterface(ABC):
         """Store an object as JSON.
 
         Args:
-            object_type: Type identifier (e.g., "radar_snapshot", "habit", "win")
+            object_type: Type identifier (e.g., "wheel_of_life_snapshot", "habit", "win")
             data: Dictionary to store as JSON
 
         Returns:

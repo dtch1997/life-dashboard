@@ -3,13 +3,13 @@ from typing import Dict, List
 from fetchers.todoist_fetcher import TodoistFetcher
 from panels import (
     WinsPanel,
-    RadarPanel,
+    WheelOfLifePanel,
     GreetingPanel,
     HabitsPanel,
 )
 from interfaces import StorageInterface
 from storage.sqlalchemy import SQLAlchemyStorageRepository
-from panels.radar_panel import RadarPanelData
+from panels.wheel_of_life_panel import WheelOfLifeData
 from panels.habits_panel import HabitData
 
 # Page config
@@ -38,7 +38,7 @@ def get_todoist_fetcher():
 
 
 def get_default_ratings() -> Dict[str, int]:
-    """Get default life radar ratings based on Ali Abdaal's Wheel of Life.
+    """Get default Wheel of Life ratings based on Ali Abdaal's framework.
 
     Ratings are on a 0-100 scale.
     """
@@ -56,8 +56,8 @@ def get_default_ratings() -> Dict[str, int]:
     }
 
 
-def load_radar_data(storage: StorageInterface) -> Dict[str, int]:
-    """Load latest radar data from database.
+def load_wheel_of_life_data(storage: StorageInterface) -> Dict[str, int]:
+    """Load latest Wheel of Life data from database.
 
     Args:
         storage: Storage interface for retrieving data
@@ -66,9 +66,9 @@ def load_radar_data(storage: StorageInterface) -> Dict[str, int]:
         Dictionary of dimension ratings, or defaults if no data exists
     """
     try:
-        snapshots = storage.get_objects("radar_snapshot", limit=1)
+        snapshots = storage.get_objects("wheel_of_life_snapshot", limit=1)
         if snapshots:
-            data = RadarPanelData(**snapshots[0])
+            data = WheelOfLifeData(**snapshots[0])
             return data.ratings
     except Exception:
         # If there's any error loading data, fall back to defaults
@@ -105,11 +105,11 @@ def main():
     # Main content area
     st.write("")
 
-    # Initialize radar ratings in session state if not present
-    if 'radar_ratings' not in st.session_state:
-        st.session_state.radar_ratings = load_radar_data(storage)
+    # Initialize Wheel of Life ratings in session state if not present
+    if 'wheel_of_life_ratings' not in st.session_state:
+        st.session_state.wheel_of_life_ratings = load_wheel_of_life_data(storage)
 
-    # 2-column layout: Today's Wins + Life Radar
+    # 2-column layout: Today's Wins + Wheel of Life
     col1, col2 = st.columns(2)
 
     with col1:
@@ -123,8 +123,8 @@ def main():
         HabitsPanel(habits=habits, title="📊 Habits").render()
 
     with col2:
-        # Life Radar panel
-        RadarPanel(ratings=st.session_state.radar_ratings).render()
+        # Wheel of Life panel
+        WheelOfLifePanel(ratings=st.session_state.wheel_of_life_ratings).render()
 
 if __name__ == "__main__":
     main()
