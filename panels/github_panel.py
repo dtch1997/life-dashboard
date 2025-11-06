@@ -3,14 +3,14 @@ GitHub Activity panel - displays recent commits
 """
 
 import streamlit as st
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from panels.base_panel import Panel
 
 
 class GitHubPanel(Panel):
     """Panel displaying recent GitHub commits"""
 
-    def __init__(self, commits: List[Tuple[str, str, str]] = None):
+    def __init__(self, commits: Optional[List[Tuple[str, str, str]]] = None):
         """
         Args:
             commits: List of tuples (repo_name, commit_message, time_ago)

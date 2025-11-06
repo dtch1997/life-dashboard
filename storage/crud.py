@@ -30,7 +30,8 @@ def store_object(object_type: str, data: Dict[str, Any]) -> int:
         )
         session.add(obj)
         session.flush()  # Get ID before commit
-        return obj.id
+        assert obj.id is not None
+        return int(obj.id)
 
 
 def get_objects(

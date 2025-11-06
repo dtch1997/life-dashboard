@@ -1,7 +1,7 @@
 import streamlit as st
 from todoist_api_python.api import TodoistAPI
-from datetime import datetime, timedelta
-from typing import List, Dict, Any
+from datetime import datetime
+from typing import List, Dict, Any, Optional
 
 
 class TodoistFetcher:
@@ -9,7 +9,7 @@ class TodoistFetcher:
         self.api = TodoistAPI(api_token)
 
     @st.cache_data(ttl=300)
-    def get_completed_today(_self, priority: int = None) -> List[Dict[str, Any]]:
+    def get_completed_today(_self, priority: Optional[int] = None) -> List[Dict[str, Any]]:
         """Fetch tasks completed today, optionally filtered by priority"""
         try:
             # Get completed tasks by completion date (requires since and until)
@@ -54,7 +54,7 @@ class TodoistFetcher:
             st.error(f"Traceback: {traceback.format_exc()}")
             return []
 
-    def get_active_tasks(self, project_id: str = None) -> List[Dict[str, Any]]:
+    def get_active_tasks(self, project_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get active tasks, optionally filtered by project"""
         try:
             if project_id:

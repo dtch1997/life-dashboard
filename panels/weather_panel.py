@@ -3,13 +3,14 @@ Weather panel - displays current weather
 """
 
 import streamlit as st
+from typing import Optional
 from panels.base_panel import Panel
 
 
 class WeatherPanel(Panel):
     """Panel displaying weather information"""
 
-    def __init__(self, emoji: str = None, temperature: str = None, description: str = None):
+    def __init__(self, emoji: Optional[str] = None, temperature: Optional[str] = None, description: Optional[str] = None):
         self.emoji = emoji or "⛅"
         self.temperature = temperature or "72°F"
         self.description = description or "Partly Cloudy"

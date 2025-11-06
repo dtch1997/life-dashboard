@@ -8,6 +8,7 @@ dependencies = [
     "sqlalchemy>=2.0",
     "streamlit>=1.32.0",
     "todoist-api-python>=3.1.0",
+    "plotly>=5.0.0",
 ]
 
 [dependency-groups]
@@ -15,5 +16,5 @@ dev = [
     "pytest>=8.4.2",
     "pytest-mock>=3.15.1",
     "ruff>=0.8.0",
-    "ty>=0.1.0",
+    "ty",
 ]

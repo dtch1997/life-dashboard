@@ -3,10 +3,6 @@ from datetime import datetime
 from fetchers.todoist_fetcher import TodoistFetcher
 from panels import (
     WinsPanel,
-    GitHubPanel,
-    MetricsPanel,
-    FocusPanel,
-    WeatherPanel,
     RadarPanel,
 )
 
@@ -77,42 +73,24 @@ def main():
     # Main content area
     st.write("")
 
-    # Life Radar - Full width panel
-    # Mock radar data
-    radar_ratings = {
-        "Health/Fitness": 7,
-        "Social Life": 6,
-        "Relationships": 8,
-        "Finances": 7,
-        "Work/Career": 8,
-    }
-    RadarPanel(ratings=radar_ratings).render()
-
-    st.write("")
-
-    # Top row - 2 panels
+    # 2-column layout: Life Radar + Today's Wins
     col1, col2 = st.columns(2)
 
     with col1:
+        # Life Radar panel
+        radar_ratings = {
+            "Health/Fitness": 7,
+            "Social Life": 6,
+            "Relationships": 8,
+            "Finances": 7,
+            "Work/Career": 8,
+        }
+        RadarPanel(ratings=radar_ratings).render()
+
+    with col2:
+        # Today's Wins panel
         todoist = get_todoist_fetcher()
         WinsPanel(todoist_fetcher=todoist).render()
-
-    with col2:
-        GitHubPanel().render()
-
-    st.write("")
-
-    # Bottom row - 3 panels
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        MetricsPanel().render()
-
-    with col2:
-        FocusPanel().render()
-
-    with col3:
-        WeatherPanel().render()
 
 if __name__ == "__main__":
     main()

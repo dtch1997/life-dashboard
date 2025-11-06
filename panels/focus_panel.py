@@ -10,7 +10,7 @@ from panels.base_panel import Panel
 class FocusPanel(Panel):
     """Panel displaying current focus area"""
 
-    def __init__(self, focus_text: str = None, due_date: str = None):
+    def __init__(self, focus_text: Optional[str] = None, due_date: Optional[str] = None):
         self.focus_text = focus_text or "Q4 Planning & Dashboard MVP"
         self.due_date = due_date or "Nov 15"
 

@@ -3,14 +3,14 @@ Quick Metrics panel - displays weekly statistics
 """
 
 import streamlit as st
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from panels.base_panel import Panel
 
 
 class MetricsPanel(Panel):
     """Panel displaying quick weekly metrics"""
 
-    def __init__(self, metrics: List[Tuple[str, str]] = None):
+    def __init__(self, metrics: Optional[List[Tuple[str, str]]] = None):
         """
         Args:
             metrics: List of tuples (label, value)

@@ -99,7 +99,7 @@ class TestTodoistFetcher:
             tasks = fetcher.get_active_tasks()
 
             assert tasks == []
-            mock_st.error.assert_called_once()
+            assert mock_st.error.call_count == 2  # Error message + traceback
 
     def test_get_active_tasks_missing_attributes(self, fetcher, mock_api):
         """Test handling of tasks with missing optional attributes"""
@@ -123,6 +123,6 @@ class TestTodoistFetcher:
         assert tasks[0]["id"] == "1"
         assert tasks[0]["content"] == "Minimal Task"
         assert tasks[0]["description"] == ""
-        assert tasks[0]["is_completed"] == False
+        assert not tasks[0]["is_completed"]
         assert tasks[0]["priority"] == 1
         assert tasks[0]["project_id"] == ""
