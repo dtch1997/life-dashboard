@@ -36,13 +36,21 @@ def get_todoist_fetcher():
 
 
 def get_default_ratings() -> Dict[str, int]:
-    """Get default life radar ratings."""
+    """Get default life radar ratings based on Ali Abdaal's Wheel of Life.
+
+    Ratings are on a 0-100 scale.
+    """
     return {
-        "Health/Fitness": 7,
-        "Social Life": 6,
-        "Relationships": 8,
-        "Finances": 7,
-        "Work/Career": 8,
+        "Romance ❤️": 13,
+        "Soul 🙏": 28,
+        "Family 👨‍👩‍👧‍👦": 43,
+        "Personal Growth 📈": 58,
+        "Mind 🧠": 65,
+        "Joy 😊": 73,
+        "Body 💪": 73,
+        "Friendships 🙌": 75,
+        "Mission/Career 💼": 80,
+        "Money 🤑": 85,
     }
 
 

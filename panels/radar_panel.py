@@ -14,24 +14,24 @@ class RadarPanelData(BaseModel):
     """Type-safe data model for Life Radar ratings.
 
     Attributes:
-        ratings: Dictionary mapping dimension names to ratings (1-10)
+        ratings: Dictionary mapping dimension names to ratings (0-100)
         timestamp: When this snapshot was created
         version: Data format version for future migrations
     """
 
-    ratings: Dict[str, int] = Field(..., description="Dimension ratings (1-10)")
+    ratings: Dict[str, int] = Field(..., description="Dimension ratings (0-100)")
     timestamp: datetime = Field(default_factory=datetime.now)
     version: str = Field(default="1.0")
 
     @field_validator('ratings')
     @classmethod
     def validate_ratings(cls, v: Dict[str, int]) -> Dict[str, int]:
-        """Ensure all ratings are in valid range (1-10)."""
+        """Ensure all ratings are in valid range (0-100)."""
         for dimension, rating in v.items():
             if not isinstance(rating, int):
                 raise ValueError(f"Rating for '{dimension}' must be an integer, got {type(rating)}")
-            if not 1 <= rating <= 10:
-                raise ValueError(f"Rating for '{dimension}' must be 1-10, got {rating}")
+            if not 0 <= rating <= 100:
+                raise ValueError(f"Rating for '{dimension}' must be 0-100, got {rating}")
         return v
 
 
@@ -41,7 +41,7 @@ class RadarPanel(Panel):
     def __init__(self, ratings: Dict[str, int], title: str = "Life Radar"):
         """
         Args:
-            ratings: Dictionary mapping dimension names to ratings (1-10)
+            ratings: Dictionary mapping dimension names to ratings (0-100)
             title: Chart title
         """
         self.ratings = ratings
@@ -82,17 +82,17 @@ class RadarPanel(Panel):
             line=dict(color='#667eea', width=2),
             marker=dict(size=8, color='#667eea'),
             name='Current',
-            hovertemplate='<b>%{theta}</b><br>Rating: %{r}/10<extra></extra>'
+            hovertemplate='<b>%{theta}</b><br>Rating: %{r}/100<extra></extra>'
         ))
 
         fig.update_layout(
             polar=dict(
                 radialaxis=dict(
                     visible=True,
-                    range=[0, 10],
+                    range=[0, 100],
                     tickmode='linear',
                     tick0=0,
-                    dtick=2,
+                    dtick=20,
                     gridcolor='rgba(102, 126, 234, 0.2)',
                     tickfont=dict(size=12, color='rgba(255,255,255,0.6)'),
                 ),

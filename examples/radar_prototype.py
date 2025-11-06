@@ -18,16 +18,21 @@ st.set_page_config(
 
 
 def generate_dummy_radar_data(date: datetime) -> Dict[str, int]:
-    """Generate dummy ratings for each life dimension (1-10 scale)"""
+    """Generate dummy ratings for each life dimension (0-100 scale) - Ali Abdaal's Wheel of Life"""
     # Use date as seed for consistent but varied data
     random.seed(date.toordinal())
 
     dimensions = {
-        "Health/Fitness": random.randint(5, 9),
-        "Social Life": random.randint(4, 8),
-        "Relationships": random.randint(6, 10),
-        "Finances": random.randint(5, 8),
-        "Work/Career": random.randint(6, 9),
+        "Body 💪": random.randint(50, 90),
+        "Mind 🧠": random.randint(40, 80),
+        "Soul 🙏": random.randint(60, 100),
+        "Romance ❤️": random.randint(50, 80),
+        "Family 👨‍👩‍👧‍👦": random.randint(60, 90),
+        "Friendships 🙌": random.randint(50, 90),
+        "Mission/Career 💼": random.randint(60, 90),
+        "Money 🤑": random.randint(50, 80),
+        "Personal Growth 📈": random.randint(50, 90),
+        "Joy 😊": random.randint(60, 100),
     }
     return dimensions
 
@@ -52,17 +57,17 @@ def create_radar_chart(ratings: Dict[str, int], title: str = "Life Radar") -> go
         line=dict(color='#667eea', width=2),
         marker=dict(size=8, color='#667eea'),
         name='Current',
-        hovertemplate='<b>%{theta}</b><br>Rating: %{r}/10<extra></extra>'
+        hovertemplate='<b>%{theta}</b><br>Rating: %{r}/100<extra></extra>'
     ))
 
     fig.update_layout(
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[0, 10],
+                range=[0, 100],
                 tickmode='linear',
                 tick0=0,
-                dtick=2,
+                dtick=20,
                 gridcolor='rgba(102, 126, 234, 0.2)',
                 tickfont=dict(size=12, color='rgba(255,255,255,0.6)'),
             ),
@@ -114,7 +119,7 @@ def create_comparison_chart(
         line=dict(color='rgba(150, 150, 150, 0.5)', width=2, dash='dot'),
         marker=dict(size=6, color='rgba(150, 150, 150, 0.5)'),
         name='Last Month',
-        hovertemplate='<b>%{theta}</b><br>Last Month: %{r}/10<extra></extra>'
+        hovertemplate='<b>%{theta}</b><br>Last Month: %{r}/100<extra></extra>'
     ))
 
     # Current snapshot (vibrant)
@@ -126,17 +131,17 @@ def create_comparison_chart(
         line=dict(color='#667eea', width=3),
         marker=dict(size=8, color='#667eea'),
         name='Current',
-        hovertemplate='<b>%{theta}</b><br>Current: %{r}/10<extra></extra>'
+        hovertemplate='<b>%{theta}</b><br>Current: %{r}/100<extra></extra>'
     ))
 
     fig.update_layout(
         polar=dict(
             radialaxis=dict(
                 visible=True,
-                range=[0, 10],
+                range=[0, 100],
                 tickmode='linear',
                 tick0=0,
-                dtick=2,
+                dtick=20,
                 gridcolor='rgba(102, 126, 234, 0.2)',
                 tickfont=dict(size=12, color='rgba(255,255,255,0.6)'),
             ),
@@ -174,35 +179,29 @@ def create_comparison_chart(
 def display_dimension_cards(ratings: Dict[str, int]):
     """Display individual dimension cards with ratings and visual indicators"""
 
-    # Emojis for each dimension
-    dimension_emojis = {
-        "Health/Fitness": "💪",
-        "Social Life": "👥",
-        "Relationships": "❤️",
-        "Finances": "💰",
-        "Work/Career": "🚀",
-    }
-
-    # Color coding based on rating
+    # Color coding based on rating (0-100 scale)
     def get_color(rating: int) -> str:
-        if rating >= 8:
-            return "#4CAF50"  # Green
-        elif rating >= 6:
-            return "#667eea"  # Purple (default)
-        elif rating >= 4:
-            return "#FF9800"  # Orange
+        if rating >= 80:
+            return "#4CAF50"  # Green (high)
+        elif rating >= 60:
+            return "#667eea"  # Purple (medium)
+        elif rating >= 40:
+            return "#FF9800"  # Orange (low)
         else:
-            return "#F44336"  # Red
+            return "#F44336"  # Red (very low)
 
-    cols = st.columns(5)
+    # Display in two rows of 5 columns each
+    ratings_list = list(ratings.items())
 
-    for idx, (dimension, rating) in enumerate(ratings.items()):
-        with cols[idx]:
+    # First row (first 5 dimensions)
+    cols1 = st.columns(5)
+    for idx in range(min(5, len(ratings_list))):
+        dimension, rating = ratings_list[idx]
+        with cols1[idx]:
             color = get_color(rating)
-            emoji = dimension_emojis.get(dimension, "📊")
 
-            # Progress bar (out of 10)
-            progress_pct = rating * 10
+            # Progress bar (out of 100)
+            progress_pct = rating
 
             st.markdown(
                 f"""
@@ -217,10 +216,9 @@ def display_dimension_cards(ratings: Dict[str, int]):
                     flex-direction: column;
                     justify-content: space-between;
                 '>
-                    <div style='font-size: 2em;'>{emoji}</div>
                     <div style='
                         color: rgba(255,255,255,0.9);
-                        font-size: 0.85em;
+                        font-size: 1.1em;
                         font-weight: 500;
                         margin: 8px 0;
                     '>{dimension}</div>
@@ -249,6 +247,62 @@ def display_dimension_cards(ratings: Dict[str, int]):
                 """,
                 unsafe_allow_html=True
             )
+
+    # Second row (remaining 5 dimensions)
+    if len(ratings_list) > 5:
+        cols2 = st.columns(5)
+        for idx in range(5, len(ratings_list)):
+            dimension, rating = ratings_list[idx]
+            with cols2[idx - 5]:
+                color = get_color(rating)
+
+                # Progress bar (out of 100)
+                progress_pct = rating
+
+                st.markdown(
+                    f"""
+                    <div style='
+                        padding: 20px;
+                        background: rgba(102, 126, 234, 0.1);
+                        border-radius: 12px;
+                        border-left: 4px solid {color};
+                        text-align: center;
+                        height: 180px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                    '>
+                        <div style='
+                            color: rgba(255,255,255,0.9);
+                            font-size: 1.1em;
+                            font-weight: 500;
+                            margin: 8px 0;
+                        '>{dimension}</div>
+                        <div style='
+                            color: {color};
+                            font-size: 2.5em;
+                            font-weight: 300;
+                            margin: 5px 0;
+                        '>{rating}</div>
+                        <div style='
+                            background: rgba(255,255,255,0.1);
+                            border-radius: 10px;
+                            height: 8px;
+                            overflow: hidden;
+                            margin-top: 10px;
+                        '>
+                            <div style='
+                                background: {color};
+                                height: 100%;
+                                width: {progress_pct}%;
+                                border-radius: 10px;
+                                transition: width 0.3s ease;
+                            '></div>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
 
 def main():
@@ -379,14 +433,14 @@ def main():
         st.write("")
 
         # Mock historical trend for one dimension
-        st.markdown("#### Sample Trend: Health/Fitness (Last 6 Months)")
+        st.markdown("#### Sample Trend: Body 💪 (Last 6 Months)")
 
         import plotly.express as px
         import pandas as pd
 
         # Generate mock historical data
         months = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"]
-        health_ratings = [6, 6, 7, 8, 7, current_ratings["Health/Fitness"]]
+        health_ratings = [60, 60, 70, 80, 70, current_ratings["Body 💪"]]
 
         df = pd.DataFrame({"Month": months, "Rating": health_ratings})
 
@@ -395,7 +449,7 @@ def main():
             x="Month",
             y="Rating",
             markers=True,
-            range_y=[0, 10],
+            range_y=[0, 100],
         )
 
         fig_trend.update_traces(

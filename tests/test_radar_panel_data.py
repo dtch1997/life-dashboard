@@ -21,27 +21,27 @@ def test_valid_ratings():
 
 
 def test_invalid_rating_too_low():
-    """Test that ratings below 1 are rejected."""
+    """Test that ratings below 0 are rejected."""
     with pytest.raises(ValidationError) as exc_info:
         RadarPanelData(
             ratings={
-                "Health": 0,
-                "Finances": 5,
+                "Health": -1,
+                "Finances": 50,
             }
         )
-    assert "must be 1-10" in str(exc_info.value)
+    assert "must be 0-100" in str(exc_info.value)
 
 
 def test_invalid_rating_too_high():
-    """Test that ratings above 10 are rejected."""
+    """Test that ratings above 100 are rejected."""
     with pytest.raises(ValidationError) as exc_info:
         RadarPanelData(
             ratings={
-                "Health": 11,
-                "Finances": 5,
+                "Health": 101,
+                "Finances": 50,
             }
         )
-    assert "must be 1-10" in str(exc_info.value)
+    assert "must be 0-100" in str(exc_info.value)
 
 
 def test_invalid_rating_not_int():
@@ -91,15 +91,15 @@ def test_import_from_dict():
 
 
 def test_boundary_values():
-    """Test that boundary values (1 and 10) are accepted."""
+    """Test that boundary values (0 and 100) are accepted."""
     data = RadarPanelData(
         ratings={
-            "Health": 1,
-            "Finances": 10,
+            "Health": 0,
+            "Finances": 100,
         }
     )
-    assert data.ratings["Health"] == 1
-    assert data.ratings["Finances"] == 10
+    assert data.ratings["Health"] == 0
+    assert data.ratings["Finances"] == 100
 
 
 def test_empty_ratings_dict():
