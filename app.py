@@ -1,14 +1,16 @@
 import streamlit as st
-from typing import Dict
+from typing import Dict, List
 from fetchers.todoist_fetcher import TodoistFetcher
 from panels import (
     WinsPanel,
     RadarPanel,
     GreetingPanel,
+    HabitsPanel,
 )
 from interfaces import StorageInterface
 from storage.sqlalchemy import SQLAlchemyStorageRepository
 from panels.radar_panel import RadarPanelData
+from panels.habits_panel import HabitData
 
 # Page config
 st.set_page_config(
@@ -74,6 +76,24 @@ def load_radar_data(storage: StorageInterface) -> Dict[str, int]:
     return get_default_ratings()
 
 
+def load_habits(storage: StorageInterface) -> List[HabitData]:
+    """Load habits from database.
+
+    Args:
+        storage: Storage interface for retrieving data
+
+    Returns:
+        List of HabitData objects
+    """
+    try:
+        habit_records = storage.get_objects("habit", limit=10)
+        habits = [HabitData(**record) for record in habit_records]
+        return habits
+    except Exception:
+        # If there's any error loading data, return empty list
+        return []
+
+
 def main():
     # Initialize dependencies
     storage = get_storage()
@@ -96,6 +116,11 @@ def main():
         # Today's Wins panel
         todoist = get_todoist_fetcher()
         WinsPanel(todoist_fetcher=todoist).render()
+
+        # Habits panel
+        st.write("")
+        habits = load_habits(storage)
+        HabitsPanel(habits=habits, title="📊 Habits").render()
 
     with col2:
         # Life Radar panel
