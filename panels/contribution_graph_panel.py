@@ -109,26 +109,26 @@ class ContributionGraphPanel(Panel):
         start_date = datetime.strptime(sorted_dates[0], "%Y-%m-%d").date()
         end_date = datetime.strptime(sorted_dates[-1], "%Y-%m-%d").date()
 
-        # Adjust start_date to previous Sunday
-        days_to_subtract = start_date.weekday() + 1 if start_date.weekday() != 6 else 0
+        # Adjust start_date to previous Monday
+        days_to_subtract = start_date.weekday()
         grid_start = start_date - timedelta(days=days_to_subtract)
 
-        # Build grid: rows = days of week (Sun=0, Sat=6), cols = weeks
+        # Build grid: rows = days of week (Mon=0, Sun=6), cols = weeks
         weeks_data = []
         current_date = grid_start
-        week_data = [None] * 7  # Sunday to Saturday
+        week_data = [None] * 7  # Monday to Sunday
         week_dates = [None] * 7
         weeks_dates = []
 
         while current_date <= end_date:
-            day_of_week = (current_date.weekday() + 1) % 7  # Convert to Sun=0
+            day_of_week = current_date.weekday()  # Mon=0, Sun=6
             date_str = current_date.strftime("%Y-%m-%d")
             count = self.contributions.get(date_str, 0)
 
             week_data[day_of_week] = count
             week_dates[day_of_week] = date_str
 
-            # If Saturday or last day, save the week
+            # If Sunday or last day, save the week
             if day_of_week == 6 or current_date == end_date:
                 weeks_data.append(week_data[:])
                 weeks_dates.append(week_dates[:])
@@ -190,10 +190,11 @@ class ContributionGraphPanel(Panel):
             yaxis=dict(
                 tickmode='array',
                 tickvals=[0, 1, 2, 3, 4, 5, 6],
-                ticktext=['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                ticktext=['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 tickfont=dict(size=10, color='rgba(255,255,255,0.6)'),
                 showgrid=False,
                 zeroline=False,
+                autorange='reversed',
             ),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',

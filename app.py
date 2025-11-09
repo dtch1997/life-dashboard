@@ -136,7 +136,7 @@ def main():
     with col1:
         # Contribution Graph panel
         contributions = get_todoist_fetcher().get_contribution_data(days=365)
-        ContributionGraphPanel(contributions=contributions, title="🔥 Contribution Activity").render()
+        ContributionGraphPanel(contributions=contributions, title="🔥 Task Activity").render()
 
         # Today's Wins panel
         st.write("")
