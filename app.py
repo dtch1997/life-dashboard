@@ -8,7 +8,7 @@ from panels import (
     GreetingPanel,
     HabitsPanel,
 )
-from panels.contribution_graph_panel import ContributionGraphPanel, generate_mock_contribution_data
+from panels.contribution_graph_panel import ContributionGraphPanel
 from interfaces import StorageInterface
 from storage.sqlalchemy import SQLAlchemyStorageRepository
 from panels.wheel_of_life_panel import WheelOfLifeData
