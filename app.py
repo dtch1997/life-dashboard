@@ -8,6 +8,7 @@ from panels import (
     GreetingPanel,
     HabitsPanel,
 )
+from panels.contribution_graph_panel import ContributionGraphPanel, generate_mock_contribution_data
 from interfaces import StorageInterface
 from storage.sqlalchemy import SQLAlchemyStorageRepository
 from panels.wheel_of_life_panel import WheelOfLifeData
@@ -32,10 +33,8 @@ def get_storage() -> StorageInterface:
 @st.cache_resource
 def get_todoist_fetcher():
     """Initialize Todoist API client with token from secrets"""
-    api_token = st.secrets.get("todoist_api_token", None)
-    if api_token:
-        return TodoistFetcher(api_token)
-    return None
+    api_token = st.secrets["todoist_api_token"]
+    return TodoistFetcher(api_token)
 
 
 def get_default_ratings() -> Dict[str, int]:
@@ -135,9 +134,13 @@ def main():
     col1, col2 = st.columns(2)
 
     with col1:
+        # Contribution Graph panel
+        contributions = get_todoist_fetcher().get_contribution_data(days=365)
+        ContributionGraphPanel(contributions=contributions, title="🔥 Contribution Activity").render()
+
         # Today's Wins panel
-        todoist = get_todoist_fetcher()
-        WinsPanel(todoist_fetcher=todoist).render()
+        st.write("")
+        WinsPanel(todoist_fetcher=get_todoist_fetcher()).render()
 
         # Habits panel
         st.write("")

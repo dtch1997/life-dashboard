@@ -1,7 +1,8 @@
 import streamlit as st
 from todoist_api_python.api import TodoistAPI
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
+from collections import defaultdict
 
 
 class TodoistFetcher:
@@ -89,3 +90,71 @@ class TodoistFetcher:
             st.error(f"Todoist API error: {e}")
             st.error(f"Traceback: {traceback.format_exc()}")
             return []
+
+    @st.cache_data(ttl=3600)
+    def get_contribution_data(_self, days: int = 365) -> Dict[str, int]:
+        """Fetch completed tasks for the last N days and aggregate by date.
+
+        Args:
+            days: Number of days to fetch (default: 365)
+
+        Returns:
+            Dictionary mapping date strings (YYYY-MM-DD) to task counts
+        """
+        try:
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=days - 1)
+
+            # Aggregate by date
+            contributions = defaultdict(int)
+
+            # Initialize all dates with 0
+            current_date = start_date.date()
+            end = end_date.date()
+            while current_date <= end:
+                contributions[current_date.strftime("%Y-%m-%d")] = 0
+                current_date += timedelta(days=1)
+
+            # Query in 30-day chunks to avoid API limits
+            chunk_start = start_date
+            while chunk_start < end_date:
+                chunk_end = min(chunk_start + timedelta(days=29), end_date)
+
+                # Get completed tasks for this chunk
+                result = _self.api.get_completed_tasks_by_completion_date(
+                    since=chunk_start.replace(hour=0, minute=0, second=0, microsecond=0),
+                    until=chunk_end.replace(hour=23, minute=59, second=59, microsecond=999999),
+                    limit=200  # Reduced limit
+                )
+
+                # Handle paginator and flatten
+                tasks_raw = list(result)
+                tasks = []
+                for item in tasks_raw:
+                    if isinstance(item, list):
+                        tasks.extend(item)
+                    else:
+                        tasks.append(item)
+
+                # Count tasks by completion date
+                for task in tasks:
+                    completed_at = getattr(task, 'completed_at', None)
+                    if completed_at:
+                        # Parse the completed_at timestamp
+                        if isinstance(completed_at, str):
+                            completed_date = datetime.fromisoformat(completed_at.replace('Z', '+00:00')).date()
+                        else:
+                            completed_date = completed_at.date()
+
+                        date_str = completed_date.strftime("%Y-%m-%d")
+                        contributions[date_str] += 1
+
+                # Move to next chunk
+                chunk_start = chunk_end + timedelta(days=1)
+
+            return dict(contributions)
+        except Exception as e:
+            import traceback
+            st.error(f"Todoist API error fetching contribution data: {e}")
+            st.error(f"Traceback: {traceback.format_exc()}")
+            return {}
