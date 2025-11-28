@@ -9,6 +9,7 @@ from panels import (
     HabitsPanel,
 )
 from panels.contribution_graph_panel import ContributionGraphPanel
+from panels.lifting_pbs_panel import LiftingPBsPanel
 from interfaces import StorageInterface
 from storage.sqlalchemy import SQLAlchemyStorageRepository
 from panels.wheel_of_life_panel import WheelOfLifeData
@@ -115,6 +116,22 @@ def load_habits(storage: StorageInterface) -> List[HabitData]:
     return get_default_habits()
 
 
+def load_lifting_data():
+    """Load lifting data from markdown file.
+
+    Returns:
+        Dictionary mapping exercise names to ExerciseRecord
+    """
+    try:
+        with open('data/wheel_of_life/body.md', 'r') as f:
+            content = f.read()
+        return LiftingPBsPanel.parse_markdown(content)
+    except FileNotFoundError:
+        return {}
+    except Exception:
+        return {}
+
+
 def main():
     # Initialize dependencies
     storage = get_storage()
@@ -150,6 +167,12 @@ def main():
     with col2:
         # Wheel of Life panel
         WheelOfLifePanel(ratings=st.session_state.wheel_of_life_ratings).render()
+
+        # Lifting PBs panel
+        st.write("")
+        lifting_exercises = load_lifting_data()
+        if lifting_exercises:
+            LiftingPBsPanel(exercises=lifting_exercises, title="💪 Lifting PBs").render()
 
 if __name__ == "__main__":
     main()
