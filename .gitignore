@@ -9,6 +9,7 @@ wheels/
 # Virtual environments
 .venv
 .python-version
+.DS_store
 
 # Streamlit secrets
 .streamlit/secrets.toml
