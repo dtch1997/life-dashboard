@@ -1,5 +1,5 @@
 """
-Today's Wins panel - displays completed p1 tasks from Todoist
+Today's Wins panel - displays all completed tasks from Todoist
 """
 
 import streamlit as st
@@ -9,29 +9,22 @@ from fetchers.todoist_fetcher import TodoistFetcher
 
 
 class WinsPanel(Panel):
-    """Panel displaying today's completed priority 1 tasks"""
+    """Panel displaying all completed tasks today"""
 
     def __init__(self, todoist_fetcher: Optional[TodoistFetcher] = None):
         self.todoist_fetcher = todoist_fetcher
 
     def _get_wins(self) -> List[str]:
-        """Fetch today's wins from Todoist or use mock data"""
-        if self.todoist_fetcher:
-            # Priority 4 = p1 in Todoist (highest priority)
-            tasks = self.todoist_fetcher.get_completed_today(priority=4)
-            wins = [task["content"] for task in tasks] if tasks else []
-        else:
-            # Fallback to mock data if no API token
-            wins = [
-                "Deployed new dashboard feature",
-                "Completed morning workout routine",
-                "Finished quarterly planning doc",
-                "Fixed critical bug in production",
-                "Read 2 chapters of current book"
-            ]
+        """Fetch today's wins from Todoist"""
+        if not self.todoist_fetcher:
+            return ["⚠️ No Todoist API token configured"]
+
+        # Get all completed tasks today (no priority filter)
+        tasks = self.todoist_fetcher.get_completed_today()
+        wins = [task["content"] for task in tasks] if tasks else []
 
         if not wins:
-            wins = ["No p1 tasks completed today yet - keep going!"]
+            wins = ["No tasks completed today yet - keep going!"]
 
         return wins
 
